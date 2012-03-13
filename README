@@ -1,1 +1,8 @@
-extend Emacs erlang-mode distel
+Main
+	erlang module,function autocomplete support
+	macros and record autocomplete support
+	integration distel flymake
+	erlang common test support
+
+TODO
+	eunit support
