@@ -5,7 +5,7 @@
 (require 'extend-flymake)
 ;;open erlang and not split window
 (setq erlang-inferior-shell-split-window nil)
-
+;;(distel-setup)
 
 (defun uuid-create ()
   "Return a newly generated UUID. This uses a simple hashing of variable data."
@@ -165,7 +165,9 @@
 					   
 					    (erlang-shell)
 					    (inferior-erlang-wait-prompt)
-					  ;;  (kill-edb-monitor)
+					    (erl-spawn
+					      (erl-send-rpc node 'distel 'find_resource (list ('lists))))
+					   ;;(kill-edb-monitor)
 					  ;;  (erl-ping  erlang-distel-default-nodename)
 					  ;;  (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
 					  ;;  (edb-monitor)
@@ -178,8 +180,8 @@
 	  (lambda()
 	    (setq erlang-ac 1)
 	    (ac-sources-change)
-	    ;;(push 'ac-source-distel ac-sources)
-	    ))
+;;	    (push 'ac-source-distel ac-sources))
+	  ))
 ;;	    (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
 ;;	    (kill-buffer edb-monitor-buffer)))
 (defadvice save-buffers-kill-emacs(around no-query-kill-emacs activate)

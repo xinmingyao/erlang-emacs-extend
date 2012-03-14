@@ -3,6 +3,8 @@
 -include("extend.hrl").
 
 
+
+
 run_ct(TestPath,Name,Fun)->
     Pid=self(),
     erlang:group_leader(whereis(init),self()),
@@ -21,7 +23,7 @@ run_ct(TestPath,Name,Fun)->
 
     Re=receive
 	#ct_reply{result=Result}->
-	     %  error_logger:info_msg("~w",[Result]),
+	      %% error_logger:info_msg("~p",[Result]),
 	    case Result of
 		{failed,{error,{RuntimeError,StackTrance}}}->
 		    {FileName,LineNo}=get_stack_info(StackTrance),
@@ -43,7 +45,7 @@ get_stack_info(Stack)->
     Location=get_location(Stack),
     [{_file,File}|T]=Location,
     [{_lineno,LineNo}|_]=T,
-    {File,LineNo}.
+    {get_full_name(File),LineNo}.
 
 get_location([])->
     throw(error);
@@ -52,6 +54,19 @@ get_location([{_Mod,_Fun,_Arity,[]}|T]) ->
 get_location([{_Mod,_Fun,_Arity,Location}|_T]) ->
     Location.
 
+get_full_name(Name=[$/|_T])->
+    Name;
+get_full_name(Name) ->
+    Index=string:rchr(Name,$.),
+    N1=string:substr(Name,1,Index-1),
+   % error_logger:info_msg("~n~s",[N1]),
+    N2=erlang:list_to_atom(N1),
+    case distel:find_source(N2) of
+	{ok,Path}->
+	    Path;
+	_->Name
+    end
+    .
 
     
  % Info= extend_ct_msg:get_fail_info(erlang:list_to_atom(Name)),
