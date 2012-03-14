@@ -1,3 +1,7 @@
+
+(defvar run_ct_error nil
+"save ct run error"
+)
 (defstruct (erlang-ct-err
 	    (:constructor nil)
 	    (:constructor elang-ct-make-err (file fun  line text)))
@@ -80,6 +84,21 @@
 	)
 )
 
+(defun ct-delete-overlay(file line-no)
+  "delete ct overlay in line-no"
+  (save-excursion
+    (progn
+    (find-file file)
+    (goto-line line-no)
+    (let ((ov (overlays-in (beginning-of-line) (end-of-line))))
+      (while (consp ov)
+	(when (and (ct-overlay-p (car ov)) (overlay-get (car ov) 'ct-overlay))
+	  (delete-overlay (car ov))
+	  )
+	(setq ov (cdr ov))
+	)
+      ))))
+    
 (defun ct-delete-all-ct-overlays(buffer)
     "Delete all flymake overlays in buffer"
 	(save-excursion

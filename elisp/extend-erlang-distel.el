@@ -338,7 +338,14 @@
   (interactive)
   (let (
 	(node (or erl-nodename-cache (erl-target-node))))
-
+    
+;;delete prev test ct error overlay
+    (progn 
+    (save-excursion
+      (and run_ct_error
+	   (progn
+	     (ct-delete-all-ct-overlays (find-file-noselect (nth 0 run_ct_error)))
+	     (setq run_ct_error nil))))
     (erl-spawn
       (erl-send-rpc node 'extend_ct_tool 'run_ct (list test-dir mod-name testcase))
       (erl-receive ()
@@ -348,12 +355,16 @@
 	      (find-file file)
 	      (goto-line line_no)
 	      (ct-highlight-line line_no msg)
+	      (setq run_ct_error (list file line_no msg))
 	      ;;(inferior-erlang-send-command "a.")
 	      (message "msg :%s" msg)	      
 	      )
 	    )
 	   (other
-	    (message "ct run: %s" other)))))))
+	    
+	    ;;		   (ct-delete-overlay (nth 0 run_ct_error) (nth 1 run_ct_error)))
+	      
+	    (message "ct run: %s" other))))))))
     
 
 
