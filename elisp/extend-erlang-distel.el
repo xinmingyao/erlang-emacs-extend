@@ -116,7 +116,7 @@
 	(concat (erlang-application-base-dir) "test"))
 (defun  erlang-application-deps()
 	(let* ((deps (concat (erlang-application-base-dir) "deps"))
-	     (temp nil)) 
+	     (temp nil))
 	     (if (file-directory-p deps)
 	     (progn	     
 	     (setq deps (directory-files deps))
@@ -132,10 +132,12 @@
 (setq erlang-distel-default-nodename (concat erlang-distel-extend-uuid ""))
 
 (defun start-erl-opts()
-	(list "-pa" (erlang-application-ebin) 
-	      "-pa" "/home/erlang/elisp/distel/ebin/"
-	      "-pa" (erlang-application-test)  
-	      "-i" (erlang-application-include) "-sname" erlang-distel-default-nodename))	
+  (let ((home (concat "/home/" (getenv "USER"))))
+    (list "-pa" (erlang-application-ebin) 
+	  "-pa" (concat home "/elisp/distel/ebin/")
+	  "-pa" (concat home "/elisp/erlang-emacs-extend/ebin/")
+	  "-pa" (erlang-application-test)  
+	  "-i" (erlang-application-include) "-sname" erlang-distel-default-nodename)))
 (add-hook 'erlang-mode-hook
 	  (lambda ()
 	    ;; compaple to distel,distel add erlang-mode in some no filebuffer
