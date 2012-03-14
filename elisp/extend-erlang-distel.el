@@ -165,7 +165,7 @@
 					   
 					    (erlang-shell)
 					    (inferior-erlang-wait-prompt)
-					    (kill-edb-monitor)
+					  ;;  (kill-edb-monitor)
 					  ;;  (erl-ping  erlang-distel-default-nodename)
 					  ;;  (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
 					  ;;  (edb-monitor)
@@ -176,8 +176,10 @@
 
 (add-hook 'erlang-shell-mode-hook 
 	  (lambda()
-
-	    (push 'ac-source-distel ac-sources)))
+	    (setq erlang-ac 1)
+	    (ac-sources-change)
+	    ;;(push 'ac-source-distel ac-sources)
+	    ))
 ;;	    (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
 ;;	    (kill-buffer edb-monitor-buffer)))
 (defadvice save-buffers-kill-emacs(around no-query-kill-emacs activate)
