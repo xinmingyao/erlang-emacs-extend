@@ -1,0 +1,10 @@
+{application,extend_erlang,
+             [{description,[]},
+              {vsn,"1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {mod,{extend_erlang_app,[]}},
+              {env,[]},
+              {modules,[extend_ct_event_handler,extend_ct_hook,extend_ct_msg,
+                        extend_ct_tool,extend_erlang_app,extend_erlang_sup,
+                        extend_module_info,extend_module_tool,fortest]}]}.

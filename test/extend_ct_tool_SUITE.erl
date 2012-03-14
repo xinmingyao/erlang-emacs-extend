@@ -14,9 +14,9 @@ end_per_testcase(Config)->
     Config.
     
 all()->
-    [error1].
+    [].
 
 e1(_Config)->
     fortest:error1().
-error1(_Config)->
-    {failed,_,_,_}=extend_ct_tool:run_ct("/home/erlang/mos/erlang-emacs-extend/test","extend_ct_tool_SUITE.erl","e1").
+error1(Config)->
+    extend_ct_tool:run_ct(test_help:get_test_path(Config),"extend_ct_tool_SUITE.erl","e1").

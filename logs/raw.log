@@ -1,0 +1,21 @@
+--- Test run on 2012/03/14 12:55:38 ---
+
+
+
+Common Test v1.6 starting (cwd is /home/erlang/mos/erlang-emacs-extend)
+
+
+Common Test: Running make in test directories...
+Including the following directories:
+"/home/erlang/mos/erlang-emacs-extend/include"
+
+CWD set to: "/home/erlang/mos/erlang-emacs-extend/logs/ct_run.test@ubuntu.ubuntu-domain.2012-03-14_12.55.38"
+
+TEST INFO: 1 test(s), 4 case(s) in 3 suite(s)
+
+Testing mos.erlang-emacs-extend: Starting test, 4 test cases
+Testing mos.erlang-emacs-extend: TEST COMPLETE, 4 ok, 0 failed of 4 test cases
+
+Updating /home/erlang/mos/erlang-emacs-extend/logs/index.html... done
+Updating /home/erlang/mos/erlang-emacs-extend/logs/all_runs.html... done
+

@@ -91,8 +91,8 @@ init([]) ->
 %%--------------------------------------------------------------------
 handle_call({save_fail_info,Suite,Msg}, _From, State=#state{ets=Ets}) ->
     Reply = ok,
-    M=io_lib:format("~p",[Msg]),
-    ets:insert(Ets,#suite_msg{name=Suite,msg=M}),
+%    M=io_lib:format("~p",[Msg]),
+    ets:insert(Ets,#suite_msg{name=Suite,msg=Msg}),
     {reply, Reply, State};
 
 handle_call({get_fail_info,Suite}, _From, State=#state{ets=Ets}) ->

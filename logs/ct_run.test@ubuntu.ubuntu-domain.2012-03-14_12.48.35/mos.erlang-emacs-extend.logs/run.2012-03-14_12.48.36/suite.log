@@ -1,0 +1,120 @@
+=== Suite started at 2012-03-14 12:48:36
+=== Starting test, 5 test cases
+=cases         5
+=user          erlang
+=host          ubuntu.ubuntu-domain
+=hosts         ubuntu.ubuntu-domain 
+=emulator_vsn  5.9
+=emulator      beam
+=otp_release   R15B
+=started       2012-03-14 12:48:36
+=case          extend_ct_msg_SUITE:init_per_suite
+=logfile       extend_ct_msg_suite.init_per_suite.html
+=started       2012-03-14 12:48:36
+=ended         2012-03-14 12:48:36
+=result        ok
+=elapsed       2.0e-6
+=case          extend_ct_msg_SUITE:save
+=logfile       extend_ct_msg_suite.save.html
+=started       2012-03-14 12:48:36
+=ended         2012-03-14 12:48:36
+=result        failed: {{badmatch,{ok,["\"msg\""]}},
+                        [{extend_ct_msg_SUITE,save,1,
+                             [{file,
+                                  "/home/erlang/mos/erlang-emacs-extend/test/extend_ct_msg_SUITE.erl"},
+                              {line,23}]},
+                         {test_server,ts_tc,3,
+                             [{file,"test_server.erl"},{line,1635}]},
+                         {test_server,run_test_case_eval1,6,
+                             [{file,"test_server.erl"},{line,1182}]},
+                         {test_server,run_test_case_eval,9,
+                             [{file,"test_server.erl"},{line,1123}]}]}, [{extend_ct_msg_SUITE,
+                                                                          save,
+                                                                          23},
+                                                                         {test_server,
+                                                                          ts_tc,
+                                                                          1635},
+                                                                         {test_server,
+                                                                          run_test_case_eval1,
+                                                                          1182},
+                                                                         {test_server,
+                                                                          run_test_case_eval,
+                                                                          1123}]
+=== *** FAILED *** test case 1 of 5
+=case          extend_ct_msg_SUITE:end_per_suite
+=logfile       extend_ct_msg_suite.end_per_suite.html
+=started       2012-03-14 12:48:36
+=ended         2012-03-14 12:48:36
+=result        ok
+=elapsed       2.0e-6
+=group_time    0.065s
+=case          extend_ct_tool_SUITE:init_per_suite
+=logfile       extend_ct_tool_suite.init_per_suite.html
+=started       2012-03-14 12:48:36
+=ended         2012-03-14 12:48:36
+=result        ok
+=elapsed       2.0e-6
+=case          extend_ct_tool_SUITE:error1
+=logfile       extend_ct_tool_suite.error1.html
+=started       2012-03-14 12:48:36
+=ended         2012-03-14 12:48:44
+=result        failed: no_answer_from_group_leader, unknown
+=== *** FAILED *** test case 2 of 5
+=case          extend_ct_tool_SUITE:end_per_suite
+=logfile       extend_ct_tool_suite.end_per_suite.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       3.0e-6
+=group_time    8.082s
+=case          extend_module_info_SUITE:init_per_suite
+=logfile       extend_module_info_suite.init_per_suite.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       2.0e-6
+=case          extend_module_info_SUITE:create1
+=logfile       extend_module_info_suite.create1.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       0.01131
+=case          extend_module_info_SUITE:get
+=logfile       extend_module_info_suite.get.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       0.014725
+=case          extend_module_info_SUITE:end_per_suite
+=logfile       extend_module_info_suite.end_per_suite.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       2.0e-6
+=group_time    0.111s
+=case          extend_module_tool_SUITE:init_per_suite
+=logfile       extend_module_tool_suite.init_per_suite.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       3.0e-6
+=case          extend_module_tool_SUITE:get
+=logfile       extend_module_tool_suite.get.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       0.001477
+=case          extend_module_tool_SUITE:end_per_suite
+=logfile       extend_module_tool_suite.end_per_suite.html
+=started       2012-03-14 12:48:44
+=ended         2012-03-14 12:48:44
+=result        ok
+=elapsed       2.0e-6
+=group_time    0.057s
+=== TEST COMPLETE, 3 ok, 2 failed of 5 test cases
+
+=finished      2012-03-14 12:48:44
+=failed        2
+=successful    3
+=user_skipped  0
+=auto_skipped  0
