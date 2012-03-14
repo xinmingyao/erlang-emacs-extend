@@ -8,7 +8,7 @@
 run_ct(TestPath,Name,Fun)->
     Pid=self(),
     erlang:group_leader(whereis(init),self()),
-    Para=#ct_request{from=Pid,replyas=run_ct},
+%    Para=#ct_request{from=Pid,replyas=run_ct},
     EventHandler={event_handler,[extend_ct_event_handler]},
     Name2=string:substr(Name,1,string:len(Name)-4),
     N2=list_to_atom(Name2),
@@ -25,9 +25,9 @@ run_ct(TestPath,Name,Fun)->
 	#ct_reply{result=Result}->
 	      %% error_logger:info_msg("~p",[Result]),
 	    case Result of
-		{failed,{error,{RuntimeError,StackTrance}}}->
+		{failed,{error,Err={_RuntimeError,StackTrance}}}->
 		    {FileName,LineNo}=get_stack_info(StackTrance),
-		    {failed,FileName,LineNo,RuntimeError};
+		    {failed,FileName,LineNo,Err};
 		{failed,FailReason}->
 		    {failed,FailReason};
 		_->ok
@@ -45,14 +45,19 @@ get_stack_info(Stack)->
     Location=get_location(Stack),
     [{_file,File}|T]=Location,
     [{_lineno,LineNo}|_]=T,
-    {get_full_name(File),LineNo}.
+    {File,LineNo}.
 
 get_location([])->
     throw(error);
 get_location([{_Mod,_Fun,_Arity,[]}|T]) ->
     get_location(T);
-get_location([{_Mod,_Fun,_Arity,Location}|_T]) ->
-    Location.
+get_location([{_Mod,_Fun,_Arity,Location}|T]) ->
+    get2(Location,T).
+
+get2(Loc=[{_,[$/|_T]},_],_List)->
+    Loc;
+get2(_Loc,List) ->
+    get_location(List).
 
 get_full_name(Name=[$/|_T])->
     Name;
