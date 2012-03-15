@@ -165,8 +165,10 @@
 					   
 					    (erlang-shell)
 					    (inferior-erlang-wait-prompt)
-					    (erl-spawn
-					      (erl-send-rpc node 'distel 'find_resource (list ('lists))))
+					    ;;do a findsource for cache
+					    (inferior-erlang-send-command "distel:find_source(lists).")
+					   ;; (erl-spawn
+					     ;; (erl-send-rpc node 'distel 'find_resource (list ('lists))))
 					   ;;(kill-edb-monitor)
 					  ;;  (erl-ping  erlang-distel-default-nodename)
 					  ;;  (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
