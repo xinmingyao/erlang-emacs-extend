@@ -22,20 +22,20 @@ run_ct(TestPath,Name,Fun)->
     ct:run_test([{auto_compile,false},{dir,TestPath},{suite,Name},{testcase,[list_to_atom(Fun)]},EventHandler]),
 
     Re=receive
-	#ct_reply{result=Result}->
-	      %% error_logger:info_msg("~p",[Result]),
-	    case Result of
-		{failed,{error,Err={_RuntimeError,StackTrance}}}->
-		    {FileName,LineNo}=get_stack_info(StackTrance),
-		    {failed,FileName,LineNo,Err};
-		{failed,FailReason}->
-		    {failed,FailReason};
-		_->ok
-	    end
-			
-    after 3000
-	      -> ok
-    end ,
+	   #ct_reply{result=Result}->
+%	       error_logger:info_msg("~p",[Result]),
+	       case Result of
+		   {failed,{error,Err={_RuntimeError,StackTrance}}}->
+		       {FileName,LineNo}=get_stack_info(StackTrance),
+		       {failed,FileName,LineNo,Err};
+		   {failed,FailReason}->
+		       {failed,FailReason};
+		   _->ok
+	       end
+		   
+       after 3000
+		 -> ok
+       end ,
     catch erlang:unregister(N2),
     %error_logger:info_msg("~w",[Re]),
     Re.
@@ -45,7 +45,8 @@ get_stack_info(Stack)->
     Location=get_location(Stack),
     [{_file,File}|T]=Location,
     [{_lineno,LineNo}|_]=T,
-    {File,LineNo}.
+    {get_full_name(File),LineNo}.
+
 
 get_location([])->
     throw(error);
@@ -56,14 +57,27 @@ get_location([{_Mod,_Fun,_Arity,Location}|T]) ->
 
 get2(Loc=[{_,[$/|_T]},_],_List)->
     Loc;
+
+get2(Loc=[{_,File},_],List)->
+    case string:rchr(File,$/)  of
+	Index when Index>0 ->
+	    Loc;
+	_ -> get_location(List)
+    end
+
+    ;
+
+
 get2(_Loc,List) ->
+    
     get_location(List).
 
 get_full_name(Name=[$/|_T])->
     Name;
-get_full_name(Name) ->
+get_full_name(Name) -> 
     Index=string:rchr(Name,$.),
-    N1=string:substr(Name,1,Index-1),
+    Index2=string:rchr(Name,$/),
+    N1=string:substr(Name,Index2+1,Index-Index2-1),
    % error_logger:info_msg("~n~s",[N1]),
     N2=erlang:list_to_atom(N1),
     case distel:find_source(N2) of
