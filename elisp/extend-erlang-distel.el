@@ -170,7 +170,7 @@
 					   ;; (erl-spawn
 					     ;; (erl-send-rpc node 'distel 'find_resource (list ('lists))))
 					   ;;(kill-edb-monitor)
-					  ;;  (erl-ping  erlang-distel-default-nodename)
+					    (erl-ping  (or erl-nodename-cache (erl-target-node)))
 					  ;;  (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
 					  ;;  (edb-monitor)
 					  ;;  (kill-buffer edb-monitor-buffer)
