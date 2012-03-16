@@ -142,9 +142,10 @@
 	  (lambda ()
 	    ;; compaple to distel,distel add erlang-mode in some no filebuffer
 	    (and buffer-file-name (progn
-				    (setq inferior-erlang-machine-options (append (erlang-application-deps) (start-erl-opts)))
+				    (or (inferior-erlang-running-p)
+					(setq inferior-erlang-machine-options (append (erlang-application-deps) (start-erl-opts))))
 ;;				    (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@" (erl-determine-hostname))))	
-				    (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@localhost")))	
+				    (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@localhost")))
 				   ;; (push 'ac-source-distel ac-sources)
 				   ;; (message (erlang-application-ebin))
 				    ;;(append ac-sources 'ac-source-distel)
