@@ -71,10 +71,11 @@
 	(skip-chars-backward "a-zA-z0-9:?#.")
 	(setq beg (point))
 	(setq str (buffer-substring-no-properties beg end))
-;;	(message str)
+    
 	(setq cmd (cond ((string-match "^\\(.*\\):\\(.*\\)$" str)
 			(let* ((mod (intern (match-string 1 str)))
 			       (pref (match-string 2 str)))
+			  
 			  (complete-fun mod pref)))
 		       ((string-match "^\\?\\(.*\\)$" str)
 			(let* (
@@ -84,14 +85,15 @@
 		       ((string-match "^[a-zA-Z0-9-_]*#\\([a-zA-Z0-9-_]*\\)$" str)
 			(let* (
 			       (name (match-string 1 str)))
+			   (message name)
 			  (complete-records  name)))
 		       ((string-match "^[a-zA-Z0-9-_]*#\\([a-zA-Z0-9-_]*\\)\\..*$" str)
 			(let* (
 			       (name (match-string 1 str)))
 			  (message name)
 			  (complete-records-name  name)))
-		        ((string-match "^\\([a-zA-Z0-9-_]*\\).*$" str)
-			(let* (
+		       ((string-match "^\\([a-zA-Z0-9-_]*\\).*$" str)
+			 (let* (
 			       (name (match-string 1 str)))
 			  (complete-module  name)))
 		       (t (message "t"))))
@@ -104,7 +106,7 @@
 (defun save-module()
   (let ((node erl-nodename-cache)
 	(module-name  (concat (file-name-sans-extension (file-name-nondirectory buffer-file-name)) ".erl"))
-	(base-dir (erlang-application-base-dir))
+	(base-dir (erlang-application-base-dir buffer-file-name))
 	)
     (erl-spawn
       (erl-send-rpc node 'extend_module_info 'create_mod (list module-name base-dir))
@@ -127,7 +129,7 @@
 (defun complete-macros(name)
   (let ((node erl-nodename-cache)
 	(module-name  (concat (buffer-name) ""))
-	(base-dir (erlang-application-base-dir))
+	(base-dir (erlang-application-base-dir buffer-file-name))
 	(buf (current-buffer))
 	)
     (message name)
@@ -140,7 +142,7 @@
 (defun complete-records(name)
   (let ((node erl-nodename-cache)
 	(module-name  (concat (buffer-name) ""))
-	(base-dir (erlang-application-base-dir))
+	(base-dir (erlang-application-base-dir buffer-file-name))
 	(buf (current-buffer))
 	)
     (message name)
@@ -152,7 +154,7 @@
 (defun complete-records-name(name)
   (let ((node erl-nodename-cache)
 	(module-name  (concat (buffer-name) ""))
-	(base-dir (erlang-application-base-dir))
+	(base-dir (erlang-application-base-dir buffer-file-name))
 	(buf (current-buffer))
 	)
     (erl-spawn
@@ -163,9 +165,9 @@
 (defun complete-module(name)
   (let ((node erl-nodename-cache)
 	(module-name  (concat (buffer-name) ""))
-	(base-dir (erlang-application-base-dir))
 	(buf (current-buffer))
 	)
+
     (erl-spawn
     (erl-send-rpc node 'distel 'modules (list  name ))
     (&ac-distel-receive-completions "function" "beg" "end" "pref" buf

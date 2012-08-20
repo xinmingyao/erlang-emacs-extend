@@ -55,18 +55,45 @@
                            (list 'debug_info 'export_all))
                        erlang-compile-extra-opts))
          end)
-    (save-excursion
-      (set-buffer inferior-erlang-buffer)
-      (compilation-forget-errors))
-    (setq end (inferior-erlang-send-command
-               (inferior-erlang-compute-compile-command noext (append opts (list (cons 'i (erlang-application-include))) (list 'debug_info) (list 'export_all)))
-               nil))))
+   ;;					  (append opts (list (cons 'i (erlang-application-include buffer-file-name)))
+   ;;						  (list 'debug_info) (list 'export_all))
+  ;;					  )
+
+    (setq yyyy buffer-file-name)
+    (setq args 
+	 (append
+		      ;;opts
+		      
+	  ;;(list (cons 'outdir (list dir)))
+	  ;;(list (cons 'i (list (erlang-application-include buffer-file-name))))
+	  (list 'debug_info) 
+	  (list 'export_all)
+	  ))
+   ;; (message args)	 
+    (erl-spawn
+      (erl-send-rpc (or erl-nodename-cache (erl-target-node)) 'extend_compile_tool 'compile_file 
+		     (list 
+		      noext  (erlang-application-include yyyy) dir (list 'debug_info 'export_all) 
+		    ;; opts 
+		     ;;(list (cons 'i (erlang-application-include yyyy)))
+		     ))
+      (erl-receive ()
+	  ((other
+	    (message "compile result:%S" other)))))))
+  ;;  (save-excursion
+  ;;    (set-buffer inferior-erlang-buffer)
+   ;;   (compilation-forget-errors))
+   ;; (setq end (inferior-erlang-send-command
+   ;;            (inferior-erlang-compute-compile-command 
+   ;;		noext (append opts (list (cons 'i (erlang-application-include buffer-file-name)))
+   ;;			      (list 'debug_info) (list 'export_all)))
+   ;;            nil))
 
 ;;send ct:run to erlang shell
 (defun run-erlang-ct()			;
   (interactive)
   (let* ((module-name (erlang-ct-module-name buffer-file-name))
-	 (cmd (concat "ct:run(\"" (erlang-application-test) "\",\"" module-name "\")."))
+	 (cmd (concat "ct:run(\"" (erlang-application-test buffer-file-name) "\",\"" module-name "\")."))
 	 )
 ;;    (save-excursion
       (progn
@@ -105,79 +132,112 @@
   ))
 
 ;; Some Erlang customizations
-(defun erlang-application-base-dir ()
+(defun erlang-application-base-dir (file-name)
   (interactive)
-  (let ((src-path (file-name-directory (buffer-file-name))))
+  (let ((src-path (file-name-directory file-name)))
     (file-name-directory (directory-file-name src-path))))
 
-(defun  erlang-application-ebin()
-	(concat (erlang-application-base-dir) "ebin"))
-(defun  erlang-application-test()
-	(concat (erlang-application-base-dir) "test"))
-(defun  erlang-application-deps()
-	(let* ((deps (concat (erlang-application-base-dir) "deps"))
+(defun  erlang-application-ebin(file-name)
+	(concat (erlang-application-base-dir file-name) "ebin"))
+(defun  erlang-application-test(file-name)
+	(concat (erlang-application-base-dir file-name) "test"))
+(defun  erlang-application-deps(file-name)
+	(let* ((deps (concat (erlang-application-base-dir file-name) "deps"))
 	     (temp nil))
 	     (if (file-directory-p deps)
 	     (progn	     
 	     (setq deps (directory-files deps))
 	     (setq temp (mapcar (lambda (dir) 
-				  (list "-pa" (concat (erlang-application-base-dir) "deps/" dir "/ebin"))) deps))
+				  (list "-pa" (concat (erlang-application-base-dir file-name) "deps/" dir "/ebin"))) deps))
 	     (apply #'append temp) )
              (setq temp nil))	
 	))
-(defun  erlang-application-include()
-	(concat (erlang-application-base-dir) "include"))
+(defun  erlang-application-include(file-name)
+	(concat (erlang-application-base-dir file-name) "include"))
 
-(setq erlang-distel-extend-uuid (uuid-create))
-(setq erlang-distel-default-nodename (concat erlang-distel-extend-uuid ""))
 
-(defun start-erl-opts()
+
+(defun start-erl-opts(node-name file-name)
   (let ((home (concat "/home/" (getenv "USER"))))
-    (list "-pa" (erlang-application-ebin) 
+    (list "-pa" (erlang-application-ebin file-name) 
 	  "-pa" (concat home "/elisp/distel/ebin/")
 	  "-pa" (concat home "/elisp/erlang-emacs-extend/ebin/")
-	  "-pa" (erlang-application-test)  
-	  "-i" (erlang-application-include) "-sname" erlang-distel-default-nodename)))
+	  "-pa" (erlang-application-test file-name)  
+	  "-i" (erlang-application-include file-name) "-sname" node-name)))
+
+(defun get-remote-console-node-name(file-name)
+  (replace-regexp-in-string "/" "" 
+			    (concat (erlang-application-base-dir file-name) "remote-console"))
+  )
+(defun erl-ping-console (node file-name)
+  ;;emacs lisp lambda lexscope not very good ,so add global ttt for lambda
+  (progn
+  (setq ttt file-name)
+  (setq yyy (current-buffer))
+  (add-hook 'erl-nodedown-hook (lambda(node1)
+				 (
+				  progn
+				   (message "Failed to communicate with console node"
+					    )
+				   
+				   (or (inferior-erlang-running-p)
+				       (progn
+					 (setq erlang-distel-extend-uuid (uuid-create))
+					 (setq erlang-distel-default-nodename (concat erlang-distel-extend-uuid ""))
+					 (setq inferior-erlang-machine-options 
+					       (append (erlang-application-deps ttt)
+						       (start-erl-opts erlang-distel-default-nodename ttt)))
+					 (save-excursion
+					   (erlang-shell))
+					
+					 (switch-to-buffer yyy)
+					 (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@localhost"))))
+				       )))))
+				 
+  (erl-spawn
+    (erl-send-rpc node 'erlang 'node nil)
+    (erl-receive (node)
+	((['rex response]
+	      (progn
+		;;(setq erlang-distel-default-nodename node)
+		(setq erl-nodename-cache node)
+		(message "Successfully communicated with remote console node %S"
+			 node)))
+	 (other
+	  (message "no")
+	  )
+	  ))))
+
 (add-hook 'erlang-mode-hook
 	  (lambda ()
 	    ;; compaple to distel,distel add erlang-mode in some no filebuffer
 	    (and buffer-file-name (progn
-				    (or (inferior-erlang-running-p)
-					(setq inferior-erlang-machine-options (append (erlang-application-deps) (start-erl-opts))))
-;;				    (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@" (erl-determine-hostname))))	
-				    (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@localhost")))
-				   ;; (push 'ac-source-distel ac-sources)
-				   ;; (message (erlang-application-ebin))
-				    ;;(append ac-sources 'ac-source-distel)
-				    ;; (setq ac-sources '(ac-source-distel))
-				    ;; (ac-set-trigger-key "TAB")
-				    (setq ac-omni-completion-sources (list (cons ":" '(ac-source-distel)))) 
-				    (setq erlang-ac 1)
-				    (ac-sources-change)
-				    ;; (setq-default ac-sources '(ac-source-distel))
-				    (flymake-find-file-hook)	
-				    (setq distel-ac nil)
-				    ;;(local-set-key (kbd "C-c :") 'ac-complete-semantic)
-				    (setq old-ac-sources ac-sources)
-				    ;;	    (add-hook 'pre-command-hook 'ac-sources-change)
-				    (or (inferior-erlang-running-p)
-					(save-excursion
-					  (progn
-					   
-					    (erlang-shell)
-					    (inferior-erlang-wait-prompt)
-					    ;;do a findsource for cache
-					    (inferior-erlang-send-command "distel:find_source(lists).")
-					   ;; (erl-spawn
-					     ;; (erl-send-rpc node 'distel 'find_resource (list ('lists))))
-					   ;;(kill-edb-monitor)
-					    (erl-ping  (or erl-nodename-cache (erl-target-node)))
-					  ;;  (edb-monitor (concat erlang-distel-default-nodename "@" (erl-determine-hostname)))
-					  ;;  (edb-monitor)
-					  ;;  (kill-buffer edb-monitor-buffer)
-					    ;;(erl-reload-modules))
-					    )))))))
-;;(delete-other-windows)
+				    (if (string-match ".*console.erl$" buffer-file-name )
+					(progn
+					  (setq erlang-distel-default-nodename (get-remote-console-node-name buffer-file-name))
+
+					  (or (inferior-erlang-running-p)
+					     (setq inferior-erlang-machine-options
+						   (append (erlang-application-deps buffer-file-name)
+							   (start-erl-opts erlang-distel-default-nodename  buffer-file-name))))
+					  (setq erl-nodename-cache 
+						(intern (concat (get-remote-console-node-name buffer-file-name) "@localhost"))
+						
+						)
+					  (erlang-shell)
+					  )
+				      
+				      (or (inferior-erlang-running-p)
+					  (erl-ping-console 
+					   (intern (concat (get-remote-console-node-name buffer-file-name) "@localhost")) buffer-file-name))
+				      
+				      (setq ac-omni-completion-sources (list (cons ":" '(ac-source-distel)))) 
+				      (setq erlang-ac 1)
+				      (ac-sources-change)
+				      (flymake-find-file-hook)	
+				      (setq distel-ac nil)
+				      (setq old-ac-sources ac-sources)
+				    )))))
 
 (add-hook 'erlang-shell-mode-hook 
 	  (lambda()
@@ -256,9 +316,12 @@
   "save buffer and compile the erlang code"
   (interactive)
   (progn
+   
     (save-buffer)
     (save-module)
-    (compile-erlang-code)))
+    (compile-erlang-code)
+    )
+  )
 
 (global-set-key [f6] 'ac-sources-change)
 (defconst erlang-distel-extend-keys
@@ -274,7 +337,7 @@
   (interactive)
   (let* ((temp (buffer-name))
 	 (test-mod  (concat (erlang-ct-module-name buffer-file-name) ".erl"))
-	 (base-dir (erlang-application-base-dir)))    
+	 (base-dir (erlang-application-base-dir buffer-file-name)))    
     (save-excursion
       (progn 
 	(setq erlang-inferior-shell-split-window t)
@@ -290,7 +353,7 @@
   (interactive)
   (let* ((temp (buffer-name))
 	 (test-mod  (concat (erlang-ct-module-name buffer-file-name) ".erl"))
-	 (base-dir (erlang-application-base-dir)))    
+	 (base-dir (erlang-application-base-dir buffer-file-name)))    
     (save-excursion
       (progn 
 	(setq erlang-inferior-shell-split-window t)
@@ -312,8 +375,8 @@
 (defun run-ct-one-fun()
   (interactive)
   (let* (
-	(test-dir (erlang-application-test))
-	(module (concat  (erlang-application-test) "/"  (erlang-ct-module-name buffer-file-name)))
+	(test-dir (erlang-application-test buffer-file-name))
+	(module (concat  (erlang-application-test buffer-file-name) "/"  (erlang-ct-module-name buffer-file-name)))
 	(line (line-number-at-pos))
 	)
     (erl-get-fun test-dir module line)
@@ -381,7 +444,7 @@
   (let* ((temp (buffer-name))
 	 (cmd "")
 	 (test-mod  (concat (erlang-ct-module-name buffer-file-name) ".erl"))
-	 (base-dir (erlang-application-base-dir)))    
+	 (base-dir (erlang-application-base-dir buffer-file-name)))    
     (save-excursion
       (progn 
 	(and (bufferp test-mod)
@@ -408,7 +471,7 @@
   (interactive)
   (let* ((temp (buffer-name))
 	 (test-mod  (concat (erlang-ct-module-name buffer-file-name) ".erl"))
-	 (base-dir (erlang-application-base-dir)))    
+	 (base-dir (erlang-application-base-dir buffer-file-name)))    
     (save-excursion
       (progn 
 	(and (bufferp test-mod)
