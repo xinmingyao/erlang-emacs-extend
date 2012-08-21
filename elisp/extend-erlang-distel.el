@@ -174,25 +174,27 @@
   (progn
   (setq ttt file-name)
   (setq yyy (current-buffer))
+  
   (add-hook 'erl-nodedown-hook (lambda(node1)
 				 (
 				  progn
 				   (message "Failed to communicate with console node"
 					    )
-				   
-				   (or (inferior-erlang-running-p)
-				       (progn
-					 (setq erlang-distel-extend-uuid (uuid-create))
-					 (setq erlang-distel-default-nodename (concat erlang-distel-extend-uuid ""))
-					 (setq inferior-erlang-machine-options 
-					       (append (erlang-application-deps ttt)
+				   (or erl-nodename-cache 
+				       (or (inferior-erlang-running-p)
+					   (progn
+					     (setq erlang-distel-extend-uuid (uuid-create))
+					     (setq erlang-distel-default-nodename (concat erlang-distel-extend-uuid ""))
+					     (setq inferior-erlang-machine-options 
+						   (append (erlang-application-deps ttt)
 						       (start-erl-opts erlang-distel-default-nodename ttt)))
-					 (save-excursion
-					   (erlang-shell))
-					
-					 (switch-to-buffer yyy)
-					 (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@localhost"))))
-				       )))))
+					     (save-excursion
+					       (erlang-shell))
+					     
+					     (switch-to-buffer yyy)
+					     (setq erl-nodename-cache (intern (concat erlang-distel-default-nodename "@localhost"))))
+					   ))
+				   ))))
 				 
   (erl-spawn
     (erl-send-rpc node 'erlang 'node nil)
