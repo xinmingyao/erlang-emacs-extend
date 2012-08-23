@@ -128,7 +128,7 @@
   (setq module-name (file-name-sans-extension (file-name-nondirectory file-path)))
   (if (string-match-p "^\\(.+\\)_SUITE$" module-name)
       (setq module-name module-name)
-      (concat  module-name "_SUITE")) 
+      (concat  module-name "")) 
   ))
 
 ;; Some Erlang customizations
@@ -214,7 +214,7 @@
 	  (lambda ()
 	    ;; compaple to distel,distel add erlang-mode in some no filebuffer
 	    (and buffer-file-name (progn
-				    (if (string-match ".*console.erl$" buffer-file-name )
+				    (if (string-match ".*/c.erl$" buffer-file-name )
 					(progn
 					  (setq erlang-distel-default-nodename (get-remote-console-node-name buffer-file-name))
 
@@ -330,6 +330,8 @@
   '(("\C-x\C-s" erlang-save-and-compile)
     ("\C-ct" restart-erlang-and-run-ct)
     ("\C-ce" restart-erlang-and-run-ct-one-fun)
+    ("\C-cu" erl-run-eunit-testcase)
+    
     ("\C-cd" erlang-run-debug)
     ("\C-cm" restart-erlang-shell-and-run-main))
   "Keys to bind in erlang-distel-extend")
@@ -515,4 +517,43 @@
 	  (edb-ensure-monitoring node)
 	  (setq is_kill_edb t)
 	  ))))
+
+;; add eunit test support
+(defun erlang-eunit-current-testname ()
+  (save-excursion
+    (erlang-end-of-function 1)
+    (erlang-beginning-of-function 1)
+    (erlang-name-of-function)))
+
+(defun erl-run-eunit-testcase()
+  (interactive)
+  (let (
+	(buf (buffer-name))
+	(mod-name (intern (erlang-ct-module-name buffer-file-name)))
+	(fun-name (intern (erlang-eunit-current-testname)))
+	(node (or erl-nodename-cache (erl-target-node))))
+    (progn
+      
+      (ct-delete-all-ct-overlays (current-buffer))
+      (erl-spawn
+	(erl-send-rpc node 'extend_eunit_tool 'run_test (list mod-name fun-name))
+   ;;	(erl-send-rpc node 'ebert_c 'my1 nil)
+      ;;      (erl-send-rpc node 'eunit 'test (list (cons (list mod-name)  (intern (erlang-eunit-current-testname) ))))
+	(erl-receive (buf)
+	    (
+	     (['rex ['error file line_no msg]]
+	      
+	      (progn
+		;;(find-file file)
+		(set-buffer buf)
+		(goto-line line_no)
+		(ct-highlight-line line_no msg)
+		(setq run_ct_error (list file line_no msg))
+		;;(inferior-erlang-send-command "a.")
+		(message "eunit error :%s" msg)	      
+		)
+	    )
+	     (other
+	      
+	      (message "eunit run ok: %s" other))))))))
 (provide 'extend-erlang-distel)

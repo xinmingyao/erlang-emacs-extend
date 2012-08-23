@@ -307,5 +307,6 @@ editing control characters:
 	      (error "No Erlang shell prompt before timeout")))
 	(if msg (message ""))))))
 
+
 (provide 'extend-ct)
 
