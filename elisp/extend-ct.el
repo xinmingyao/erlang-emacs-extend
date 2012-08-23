@@ -143,7 +143,7 @@
 (defface ct-errline-face
 ;+   '((((class color)) (:foreground "OrangeRed" :bold t :underline t))
 ;+   '((((class color)) (:underline "OrangeRed"))
-   '((((class color)) (:background "LightPink"))  
+   '((((class color)) (:background "lightskyblue"))  
      (t (:bold t)))
    "Face used for marking error lines"
     :group 'ct
