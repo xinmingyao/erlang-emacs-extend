@@ -6,8 +6,6 @@ leader_proxy(Old,Parent)->
 	stop->ok;
 	A->
 	    Old!A,
-	    io:format(Old,"msg:~p~n",[A]),
-	    
 	    case A of
 		{io_request1,_,_,{put_chars,unicode,io_lib,format,Para}}->
 		    T1=apply(io_lib,format,Para),
@@ -80,7 +78,6 @@ run_test(Mod,Fun)->
 		 {generator,Mod,Fun};
 	     _->{Mod,Fun}
 	 end,
-    io:format(P,"~p~n",[Para]),
     case eunit:test(Para) of
        ok->ok;
        error->
