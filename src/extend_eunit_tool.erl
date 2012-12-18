@@ -45,7 +45,7 @@ leader_proxy(Old,Parent)->
     end.
 
 is_assertion(T) when is_list(T)->
-    case re:run(T,"assertion_failed",[]) of
+    case re:run(T,"_failed",[]) of
 	{match,_}->
 	    true;
 	_->false
@@ -54,11 +54,11 @@ is_assertion(T) when is_list(T)->
 is_assertion(_) ->
     false.
 get_info(B)->
-    _S0="{assertion_failed,[{module,ebert-c},\n{line,140},\n                   {expression,\"1 == 2\"},\n                   {expected,true},\n                   {value,false}]}\n",
+    _S0="{.*_failed,[{module,ebert-c},\n{line,140},\n                   {expression,\"1 == 2\"},\n                   {expected,true},\n                   {value,false}]}\n",
     S=erlang:binary_to_list(erlang:iolist_to_binary(B)),
     S1=re:replace(S,"\n","",[{return,list}]),
 
-    Re=".*assertion_failed,.*module,([a-zA-Z0-9_\-]*).*line,([0-9]*)",
+    Re=".*_failed,.*module,([a-zA-Z0-9_\-]*).*line,([0-9]*)",
     case re:run(S1,Re,[]) of
 	{match,[_,{B1,E1},{B2,E2}]}->
 	    {error,string:substr(S1,B1+1,E1),erlang:list_to_integer(string:substr(S1,B2+1,E2)),S1};
