@@ -3,15 +3,6 @@
 (setq flymake-no-changes-timeout most-positive-fixnum)
 (setq flymake-start-syntax-check-on-newline nil)
 
-(defun flymake-erlang-init ()
-  (let* ((temp-file (flymake-init-create-temp-buffer-copy
-		     'flymake-create-temp-inplace))
-	 (local-file (file-relative-name temp-file
-		(file-name-directory buffer-file-name))))
-    (list "~/elisp/ecompile.sh" (list local-file))))
-
-(add-to-list 'flymake-allowed-file-name-masks '("\\.erl\\'" flymake-erlang-init))
-
 (defun my-flymake-show-next-error()
     (interactive)
     (flymake-goto-next-error)

@@ -210,8 +210,22 @@
 	  )
 	  ))))
 
+(setq erlang-base-dir nil)
+
+(defun flymake-erlang-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+		     'flymake-create-temp-inplace))
+	 (local-file (file-relative-name temp-file
+		(file-name-directory buffer-file-name))))
+   ;; (message (list "~/elisp/ecompile.sh" (list local-file) erlang-base-dir))
+    (list "~/elisp/ecompile.sh" (list local-file  erlang-base-dir))))
+
+
 (add-hook 'erlang-mode-hook
 	  (lambda ()
+	    (or erlang-base-dir
+		(setq erlang-base-dir (erlang-application-base-dir(buffer-file-name))))
+            (add-to-list 'flymake-allowed-file-name-masks '("\\.erl\\'" flymake-erlang-init))
 	    ;; compaple to distel,distel add erlang-mode in some no filebuffer
 	    (and buffer-file-name (progn
 				    (if (string-match ".*/c.erl$" buffer-file-name )
